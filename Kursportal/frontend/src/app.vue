@@ -1,16 +1,11 @@
 <template>
-    <div>
-        <header style="display:flex;justify-content:space-between;align-items:center">
-            <h1>Kursportal</h1>
-            <div>
-                <button v-if="!user" @click="go('/login')">Login</button>
-                <button v-if="!user" @click="go('/register')">Registrera</button>
-                <button v-if="user" @click="logout">Logout</button>
-            </div>
-        </header>
-        <router-view @login="onLogin" />
-    </div>
+    <NavBar />
+    <router-view />
 </template>
+
+<script setup>
+import NavBar from './components/NavBar.vue'
+</script>
 
 <script>
 import { ref } from 'vue';

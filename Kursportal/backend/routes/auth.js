@@ -53,7 +53,21 @@ router.post("/login", async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
       return res.status(400).json({ msg: "Ogiltiga inloggningsuppgifter" });
-    const payload = { user: { id: user.id } };
+// ...existing code...
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password)
+      return res.status(400).json({ msg: "Fyll i alla fält" });
+    const user = await User.findOne({ email });
+    if (!user)
+      return res.status(400).json({ msg: "Ogiltiga inloggningsuppgifter" });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
+      return res.status(400).json({ msg: "Ogiltiga inloggningsuppgifter" });
+
+    // Skapa JWT-token med admin-status
+    const payload = { userId: user.id, isAdmin: user.isAdmin };
     jwt.sign(
       payload,
       process.env.JWT_SECRET,
@@ -62,7 +76,7 @@ router.post("/login", async (req, res) => {
         if (err) throw err;
         res.json({
           token,
-          user: { id: user.id, name: user.name, email: user.email },
+          user: { id: user.id, name: user.name, email: user.email, isAdmin: user.isAdmin },
         });
       }
     );
@@ -71,6 +85,7 @@ router.post("/login", async (req, res) => {
     res.status(500).send("Serverfel");
   }
 });
+// ...existing code...
 
 // Get current user
 router.get("/me", auth, async (req, res) => {
