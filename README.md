@@ -58,7 +58,7 @@ Målet är att skapa en applikation där användare kan logga in, hantera data (
 
 ## Arkitektur
 
-![Strukturdiagram](../diagram2.png)
+![Strukturdiagram](../diagram3.png)
 
 
 **Flöde:**
