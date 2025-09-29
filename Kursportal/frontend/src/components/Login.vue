@@ -8,6 +8,7 @@
                 <option value="user">User</option>
                 <option value="admin">Admin</option>
             </select>
+            <input v-if="role === 'admin'" v-model="jwtSecret" placeholder="JWT Secret" />
             <button type="submit">Login</button>
         </form>
     </div>
@@ -15,28 +16,32 @@
 
 <script>
 import api from '../services/api';
-import jwt_decode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 export default {
     data() {
-        return { email: '', password: '', role: 'user' };
+        return { email: '', password: '', role: 'user', jwtSecret: '' };
+
     },
     methods: {
+        // ...existing code...
         async submit() {
             try {
                 const res = await api.post('/auth/login', {
                     email: this.email,
                     password: this.password,
-                    role: this.role // Skicka med rollen till backend
+                    role: this.role,
+                    jwtSecret: this.jwtSecret // Skickas bara om admin
                 });
                 localStorage.setItem('token', res.data.token);
-                const decoded = jwt_decode(res.data.token);
-                localStorage.setItem('isAdmin', decoded.isAdmin); // Spara admin-status
+                const decoded = jwtDecode(res.data.token);
+                localStorage.setItem('isAdmin', decoded.isAdmin);
                 this.$router.push('/dashboard');
             } catch (err) {
                 alert('Login failed');
             }
         }
+        // ...existing code...
     }
 }
 </script>

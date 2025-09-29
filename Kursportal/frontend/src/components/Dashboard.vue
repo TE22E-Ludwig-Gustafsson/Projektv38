@@ -1,8 +1,8 @@
 <template>
-  <div>
-    <h2>Dashboard</h2>
-    <CourseList :isAdmin="isAdmin" />
-  </div>
+    <div>
+        <h2>Dashboard</h2>
+        <CourseList :isAdmin="isAdmin" />
+    </div>
 </template>
 
 <script setup>
