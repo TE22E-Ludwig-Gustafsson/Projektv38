@@ -1,60 +1,39 @@
 <template>
     <div>
-        <h2>Kurser</h2>
-
-        <form v-if="isAdmin" @submit.prevent="addCourse">
-            <input v-model="newName" placeholder="Ny kurs" />
-            <button type="submit">Lägg till</button>
-        </form>
-
+        <h2>Courses</h2>
         <ul>
             <li v-for="course in courses" :key="course._id">
-                <template v-if="isAdmin">
-                    <input v-model="course.name" @change="updateCourse(course)" />
-                    <button @click="deleteCourse(course._id)">❌</button>
-                </template>
-                <template v-else>
-                    {{ course.name }}
-                </template>
+                {{ course.name }} – {{ course.date }} {{ course.time }} – {{ course.teacher }}
             </li>
         </ul>
     </div>
 </template>
 
-<script>
-import api from "../services/api";
+<script setup>
+import { ref, onMounted } from 'vue'
+import api from '../services/api'
 
-export default {
-    props: {
-        isAdmin: { type: Boolean, default: false }
-    },
-    data() {
-        return {
-            courses: [],
-            newName: "",
-        };
-    },
-    async created() {
-        this.fetchCourses();
-    },
-    methods: {
-        async fetchCourses() {
-            const res = await api.get("/items");
-            this.courses = res.data;
-        },
-        async addCourse() {
-            if (!this.newName) return;
-            const res = await api.post("/items", { name: this.newName });
-            this.courses.push(res.data);
-            this.newName = "";
-        },
-        async updateCourse(course) {
-            await api.put(`/items/${course._id}`, { name: course.name });
-        },
-        async deleteCourse(id) {
-            await api.delete(`/items/${id}`);
-            this.courses = this.courses.filter((c) => c._id !== id);
-        },
-    },
-};
+const props = defineProps({
+    user: { type: Object, default: null }
+})
+
+const courses = ref([])
+
+const fetchCourses = async () => {
+    const res = await api.get('/items')
+    courses.value = res.data.map(course => {
+        let datePart = ''
+        let timePart = ''
+        if (course.date) {
+            const [date, time] = course.date.split('T')
+            datePart = date
+            timePart = time ? time.slice(0, 5) : ''
+        }
+        return { ...course, date: datePart, time: timePart, teacher: course.teacher || '' }
+    })
+}
+
+onMounted(fetchCourses)
+// valfritt: auto-refresh
+setInterval(fetchCourses, 5000)
 </script>

@@ -1,11 +1,15 @@
 <template>
-    <div>
-        <h2>Dashboard</h2>
-        <CourseList :isAdmin="isAdmin" />
-    </div>
+  <div>
+    <h2>Admin Dashboard</h2>
+    <CourseManager :user="props.user" />
+  </div>
 </template>
 
 <script setup>
-import CourseList from './CourseList.vue'
-const isAdmin = localStorage.getItem('isAdmin') === 'true'
+import CourseManager from './CourseManager.vue'
+
+const props = defineProps({
+  isAdmin: { type: Boolean, default: false },
+  user: { type: Object, default: null }
+})
 </script>

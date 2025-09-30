@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
 
-const itemSchema = new mongoose.Schema({
+const ItemSchema = new mongoose.Schema({
   name: { type: String, required: true },
+  date: { type: Date },         
+  teacher: { type: String }
 });
 
-module.exports = mongoose.model("Item", itemSchema);
+module.exports = mongoose.model("Item", ItemSchema);

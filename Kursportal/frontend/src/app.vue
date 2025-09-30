@@ -1,47 +1,55 @@
 <template>
-    <NavBar />
-    <router-view />
+  <NavBar 
+    :user="user" 
+    :isAdmin="isAdmin" 
+    :isLoggedIn="isLoggedIn" 
+    @logout="handleLogout" 
+  />
+  <router-view v-slot="{ Component }">
+    <component :is="Component" :isAdmin="isAdmin" :user="user" />
+  </router-view>
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import NavBar from './components/NavBar.vue'
-</script>
+import api from './services/api'
 
-<script>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import api from './services/api';
+const router = useRouter()
+const user = ref(null)
+const isAdmin = ref(false)
 
-export default {
-    setup() {
-        const user = ref(null);
-        const router = useRouter();
+const isLoggedIn = computed(() => !!user.value)
 
-        const fetchMe = async () => {
-            try {
-                const res = await api.get('/auth/me');
-                user.value = res.data;
-            } catch {
-                user.value = null;
-            }
-        };
+const fetchMe = async () => {
+  const token = localStorage.getItem('token')
+  if (!token) return router.push('/login')
 
-        if (localStorage.getItem('token')) fetchMe();
+  try {
+    const res = await api.get('/auth/me')
+    user.value = res.data
+    isAdmin.value = res.data.isAdmin
+    localStorage.setItem('isAdmin', res.data.isAdmin)
 
-        const logout = () => {
-            localStorage.removeItem('token');
-            user.value = null;
-            router.push('/login');
-        };
-
-        const go = (path) => router.push(path);
-
-        const onLogin = (loggedInUser) => {
-            user.value = loggedInUser;
-            router.push('/');
-        };
-
-        return { user, logout, go, onLogin };
+    const path = res.data.isAdmin ? '/dashboard' : '/courseList'
+    if (router.currentRoute.value.path !== path && router.currentRoute.value.path !== '/') {
+      router.push(path)
     }
-};
+  } catch {
+    localStorage.removeItem('token')
+    localStorage.removeItem('isAdmin')
+    user.value = null
+    isAdmin.value = false
+    router.push('/login')
+  }
+}
+
+function handleLogout() {
+  user.value = null
+  isAdmin.value = false
+}
+
+onMounted(fetchMe)
+defineExpose({ fetchMe })
 </script>

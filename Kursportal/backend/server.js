@@ -14,8 +14,11 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use("/api/auth", require("./routes/auth"));
-app.use("/api/items", require("./routes/items"));
+const authRoutes = require("./routes/auth");
+app.use("/api/auth", authRoutes);
+const itemsRoutes = require("./routes/items");
+app.use("/api/items", itemsRoutes);
 
+//Starta servern
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Item = require("../models/item");
+const auth = require("../middleware/auth");
 
 // GET alla objekt
 router.get("/", async (req, res) => {
@@ -12,23 +13,36 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST nytt objekt
-router.post("/", async (req, res) => {
+// POST nytt objekt (admin only)
+router.post("/", auth, async (req, res) => {
+  if (!req.user.isAdmin) return res.status(403).json({ msg: "Ej behörighet" });
+
   try {
-    const item = new Item({ name: req.body.name });
-    await item.save();
-    res.json(item);
+    const newItem = new Item({
+      name: req.body.name,
+      date: req.body.date, // ISO-sträng från frontend
+      teacher: req.body.teacher,
+    });
+
+    await newItem.save();
+    res.json(newItem);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// PUT uppdatera objekt
-router.put("/:id", async (req, res) => {
+// PUT uppdatera objekt (admin only)
+router.put("/:id", auth, async (req, res) => {
+  if (!req.user.isAdmin) return res.status(403).json({ msg: "Ej behörighet" });
+
   try {
     const item = await Item.findByIdAndUpdate(
       req.params.id,
-      { name: req.body.name },
+      {
+        name: req.body.name,
+        date: req.body.date, // ISO-sträng
+        teacher: req.body.teacher,
+      },
       { new: true }
     );
     res.json(item);
@@ -37,8 +51,9 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// DELETE ta bort objekt
-router.delete("/:id", async (req, res) => {
+// DELETE objekt (admin only)
+router.delete("/:id", auth, async (req, res) => {
+  if (!req.user.isAdmin) return res.status(403).json({ msg: "Ej behörighet" });
   try {
     await Item.findByIdAndDelete(req.params.id);
     res.json({ success: true });
