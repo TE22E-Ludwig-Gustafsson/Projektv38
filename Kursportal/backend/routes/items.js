@@ -22,6 +22,7 @@ router.post("/", auth, async (req, res) => {
       name: req.body.name,
       date: req.body.date, // ISO-sträng från frontend
       teacher: req.body.teacher,
+      description: req.body.description || '' 
     });
 
     await newItem.save();
@@ -42,6 +43,7 @@ router.put("/:id", auth, async (req, res) => {
         name: req.body.name,
         date: req.body.date, // ISO-sträng
         teacher: req.body.teacher,
+        description: req.body.description || ''
       },
       { new: true }
     );
