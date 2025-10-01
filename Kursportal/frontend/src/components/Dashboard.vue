@@ -1,15 +1,13 @@
 <template>
-  <div>
-    <h2>Admin Dashboard</h2>
-    <CourseManager :user="props.user" />
-  </div>
+    <div class="page-container">
+        <h2 class="title-lg">Admin Dashboard</h2>
+        <KursManager :isAdmin="isAdmin" :user="user" />
+    </div>
 </template>
 
 <script setup>
-import CourseManager from './CourseManager.vue'
+import KursManager from './KursManager.vue'
 
-const props = defineProps({
-  isAdmin: { type: Boolean, default: false },
-  user: { type: Object, default: null }
-})
+const props = defineProps({ isAdmin: Boolean, user: Object })
+
 </script>

@@ -1,21 +1,23 @@
 <template>
-    <div>
-        <h2>Login</h2>
-        <form @submit.prevent="submit">
-            <input v-model="email" placeholder="Email" />
-            <input v-model="password" type="password" placeholder="Password" />
+    <div class="form-container">
+        <div class="form-box">
+            <h2>Logga in</h2>
+            <form @submit.prevent="submit">
+                <input v-model="email" placeholder="Email" />
+                <input v-model="password" type="password" placeholder="Password" />
 
-            <select v-model="role">
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-            </select>
+                <select v-model="role">
+                    <option value="user">Användare</option>
+                    <option value="admin">Admin</option>
+                </select>
 
-            <input v-if="role === 'admin'" v-model="jwtSecret" placeholder="JWT Secret" />
+                <input v-if="role === 'admin'" v-model="jwtSecret" type="password" placeholder="JWT Secret" />
 
-            <button type="submit">Login</button>
+                <button type="submit">Logga in</button>
 
-            <p v-if="errorMessage" style="color:red">{{ errorMessage }}</p>
-        </form>
+                <p v-if="errorMessage" style="color:red">{{ errorMessage }}</p>
+            </form>
+        </div>
     </div>
 </template>
 
@@ -23,8 +25,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../services/api'
-import { jwtDecode } from 'jwt-decode'
-
 
 const router = useRouter()
 const email = ref('')
@@ -36,36 +36,34 @@ const errorMessage = ref('')
 const submit = async () => {
     errorMessage.value = ''
 
-    if (!email.value || !password.value) {
-        errorMessage.value = 'Fyll i både e-post och lösenord.'
-        return
-    }
-
     if (role.value === 'admin' && !jwtSecret.value) {
         errorMessage.value = 'Admin måste ange JWT Secret.'
         return
     }
 
+    if (role.value === 'user' && (!email.value || !password.value)) {
+        errorMessage.value = 'Fyll i både e-post och lösenord.'
+        return
+    }
+
     try {
-        const res = await api.post('/auth/login', {
+        const res = await api.post("/auth/login", {
             email: email.value,
             password: password.value,
             role: role.value,
-            jwtSecret: jwtSecret.value
+            jwtSecret: jwtSecret.value,
         })
 
-        localStorage.setItem('token', res.data.token)
-        const decoded = jwtDecode(res.data.token)
-        localStorage.setItem('isAdmin', decoded.isAdmin)
+        // Spara token i localStorage
+        localStorage.setItem("token", res.data.token)
+        localStorage.setItem("isAdmin", role.value === "admin" ? "true" : "false")
 
-        decoded.isAdmin ? router.push('/dashboard') : router.push('/courseList')
+        // Navigera med router
+        if (role.value === "admin") router.push("/dashboard") && isLoggedIn == true
+        else router.push("/KursList") && isLoggedIn == true
+
     } catch (err) {
-        console.error('Login error:', err)
-        if (err.response?.data?.msg) {
-            errorMessage.value = `Fel: ${err.response.data.msg}`
-        } else {
-            errorMessage.value = 'Login misslyckades – kontrollera nätverk eller server.'
-        }
+        errorMessage.value = err.response?.data?.msg || "Inloggning misslyckades"
     }
 }
 </script>

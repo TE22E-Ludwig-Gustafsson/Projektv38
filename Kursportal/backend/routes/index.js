@@ -1,13 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../views/Login.vue';
 import Dashboard from '../views/Dashboard.vue'; // admin-sida
-import CourseList from '../components/CourseList.vue';
+import KursList from '../components/KursList.vue';
 
 const routes = [
   { path: '/login', component: Login },
   { path: '/register', component: Register },
   { path: '/dashboard', component: Dashboard, meta: { requiresAdmin: true } },
-  { path: '/courseList', component: CourseList },
+  { path: '/KursList', component: KursList },
   { path: '/', redirect: '/login' }
 ];
 
@@ -18,7 +18,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token');
+  //const token = localStorage.getItem('token');
   const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
   if (!token && to.path !== '/login') {
@@ -26,7 +26,7 @@ router.beforeEach((to, from, next) => {
   }
 
   if (to.meta.requiresAdmin && !isAdmin) {
-    return next('/courses'); // user försöker gå till admin → redirect
+    return next('/Kurser'); // user försöker gå till admin → redirect
   }
 
   next();

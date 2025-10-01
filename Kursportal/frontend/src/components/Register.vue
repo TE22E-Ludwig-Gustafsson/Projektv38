@@ -1,18 +1,38 @@
 <template>
-  <div>
-    <h2>Register</h2>
-    <form @submit.prevent="submit">
-      <input v-model="name" placeholder="Name" required />
-      <input v-model="email" placeholder="Email" required />
-      <input v-model="password" type="password" placeholder="Password" required />
-      <select v-model="role">
-        <option value="user">User</option>
-        <option value="admin">Admin</option>
-      </select>
-      <input v-if="role === 'admin'" v-model="jwtSecret" placeholder="JWT Secret" required />
-      <button type="submit">Register</button>
-    </form>
-  </div>
+    <div class="form-container">
+        <div class="form-box">
+            <h2 class="title">Registrera</h2>
+            <form @submit.prevent="submit" class="form-spacing">
+                <input v-model="name" placeholder="Namn" class="input" required />
+                <input v-model="email" type="text" placeholder="E-post" class="input" required />
+                <input v-model="password" type="password" placeholder="Lösenord" class="input" required />
+
+                <!-- Role Selection -->
+                <div class="select-wrapper">
+                    <select v-model="role" class="input select-styled">
+                        <option value="user">Användare</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+
+                <!-- Admin Secret Field -->
+                <input v-if="role === 'admin'" v-model="jwtSecret" type="password" placeholder="JWT Secret"
+                    class="input" required />
+
+                <button type="submit" class="btn w-full">Registrera</button>
+
+                <!-- Visa eventuellt felmeddelande här -->
+                <p v-if="errorMessage" class="error-message">
+                    {{ errorMessage }}
+                </p>
+
+                <!-- Visa framgångsmeddelande -->
+                <p v-if="successMessage" class="success-message">
+                    {{ successMessage }}
+                </p>
+            </form>
+        </div>
+    </div>
 </template>
 
 <script setup>
@@ -26,20 +46,34 @@ const email = ref('')
 const password = ref('')
 const role = ref('user')
 const jwtSecret = ref('')
+const errorMessage = ref('')
+const successMessage = ref('')
 
 const submit = async () => {
-  try {
-    await api.post('/auth/register', {
-      name: name.value,
-      email: email.value,
-      password: password.value,
-      role: role.value,
-      jwtSecret: jwtSecret.value
-    })
-    alert('Registration successful')
-    router.push('/login')
-  } catch (err) {
-    alert(err.response?.data?.msg || 'Registration failed')
-  }
+    // Rensa meddelanden vid nytt försök
+    errorMessage.value = ''
+    successMessage.value = ''
+
+    try {
+        const res = await api.post('/auth/register', {
+            name: name.value,
+            email: email.value,
+            password: password.value,
+            role: role.value,
+            jwtSecret: jwtSecret.value
+        })
+
+        // Hantera framgång
+        successMessage.value = 'Registrering lyckades! Omdirigerar...'
+
+        setTimeout(() => {
+            router.push('/login')
+        }, 1500) // Ger användaren 1.5 sekunder att se framgångsmeddelandet
+
+    } catch (err) {
+        console.error('Registration error:', err)
+        // Visar felmeddelande på sidan istället för alert
+        errorMessage.value = err.response?.data?.msg || 'Registreringen misslyckades. Kontrollera nätverket eller försök igen.'
+    }
 }
 </script>

@@ -37,7 +37,12 @@ router.post("/register", async (req, res) => {
       isAdmin = true;
     }
 
-    const newUser = new User({name, email, password: hashedPassword, isAdmin,});
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      isAdmin,
+    });
     await newUser.save();
 
     res.json({ msg: "Registrering lyckades!" });
@@ -49,42 +54,42 @@ router.post("/register", async (req, res) => {
 
 // LOGIN
 router.post("/login", async (req, res) => {
-  try {
-    const { email, password, role, jwtSecret } = req.body;
-    if (!email || !password) return res.status(400).json({ msg: "Fyll i alla fält" });
-    
-     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ msg: "Ogiltiga inloggningsuppgifter" });
+  const { email, password, role, jwtSecret } = req.body;
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ msg: "Ogiltiga inloggningsuppgifter" });
+  if (role === "admin") {
+    if (!jwtSecret || jwtSecret !== process.env.JWT_SECRET)
+      return res.status(401).json({ msg: "Fel JWT Secret!" });
 
-    if (role === "admin") {
-      if (!jwtSecret || jwtSecret !== process.env.JWT_SECRET) {
-        return res.status(401).json({ msg: "Fel JWT Secret för admin!" });
-      }
-      if (!user.isAdmin) return res.status(403).json({ msg: "Du är inte admin!" });
-    }
-
-    const payload = { userId: user.id, isAdmin: user.isAdmin };
-    const token = jwt.sign(
-      { id: user._id, isAdmin: user.isAdmin },
-      process.env.JWT_SECRET, 
-      { expiresIn: "12h" });
-
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        isAdmin: user.isAdmin
-      }
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Serverfel");
+    return res.json({ msg: "Admin inloggad" });
   }
+
+  // Vanlig användare
+  if (!email || !password)
+    return res.status(400).json({ msg: "Fyll i alla fält" });
+
+  const user = await User.findOne({ email });
+  if (!user)
+    return res.status(400).json({ msg: "Ogiltiga inloggningsuppgifter" });
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch)
+    return res.status(400).json({ msg: "Ogiltiga inloggningsuppgifter" });
+
+  const token = jwt.sign(
+    { id: user._id, isAdmin: user.isAdmin },
+    process.env.JWT_SECRET,
+    { expiresIn: "12h" }
+  );
+
+  res.json({
+    token,
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+    },
+  });
 });
 
 // GET CURRENT USER

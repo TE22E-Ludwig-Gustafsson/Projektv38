@@ -1,29 +1,27 @@
 <template>
-    <nav style="display: flex; gap: 1rem; padding: 1rem; background: #222; color: #fff;">
-        <button v-if="!isLoggedIn" @click="goToLogin">Login</button>
-        <button v-if="!isLoggedIn" @click="goToRegister">Register</button>
-        <button v-if="isLoggedIn" @click="handleLogout">Logout</button>
+    <nav class="navbar">
+        <div class="logo" @click="goToHome">Kursportal</div>
+        <div class="nav-links">
+            <button v-if="!isLoggedIn" @click="goToLogin" class="btn">Logga in</button>
+            <button v-if="!isLoggedIn" @click="goToRegister" class="btn">Registrera</button>
+            <button v-if="isLoggedIn" @click="handleLogout" class="btn btn-danger">Logga ut</button>
+        </div>
     </nav>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
 
-const props = defineProps({
-    user: { type: Object, default: null },
-    isAdmin: { type: Boolean, default: false },
-    isLoggedIn: { type: Boolean, default: false }
-})
-
-const emit = defineEmits(['logout'])
 const router = useRouter()
+const props = defineProps({ isLoggedIn: Boolean })
+const emit = defineEmits(['logout'])
 
-function goToLogin() { router.push('/login') }
-function goToRegister() { router.push('/register') }
 function handleLogout() {
-    localStorage.removeItem('token')
-    localStorage.removeItem('isAdmin')
     emit('logout')
     router.push('/login')
 }
+
+function goToLogin() { router.push('/login') }
+function goToRegister() { router.push('/register') }
+function goToHome() { router.push('/') }
 </script>

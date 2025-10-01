@@ -1,55 +1,61 @@
 <template>
-  <NavBar 
-    :user="user" 
-    :isAdmin="isAdmin" 
-    :isLoggedIn="isLoggedIn" 
-    @logout="handleLogout" 
-  />
-  <router-view v-slot="{ Component }">
-    <component :is="Component" :isAdmin="isAdmin" :user="user" />
-  </router-view>
+    <!-- NavBar hanterar inloggningsstatus via prop -->
+    <NavBar :isLoggedIn="isLoggedIn" @logout="handleLogout" />
+
+    <div class="app-container">
+        <router-view v-slot="{ Component }">
+            <component :is="Component" :user="user" :isAdmin="isAdmin" />
+        </router-view>
+    </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import NavBar from './components/NavBar.vue'
 import api from './services/api'
 
-const router = useRouter()
 const user = ref(null)
 const isAdmin = ref(false)
+const route = useRoute()
 
 const isLoggedIn = computed(() => !!user.value)
 
-const fetchMe = async () => {
-  const token = localStorage.getItem('token')
-  if (!token) return router.push('/login')
-
-  try {
-    const res = await api.get('/auth/me')
-    user.value = res.data
-    isAdmin.value = res.data.isAdmin
-    localStorage.setItem('isAdmin', res.data.isAdmin)
-
-    const path = res.data.isAdmin ? '/dashboard' : '/courseList'
-    if (router.currentRoute.value.path !== path && router.currentRoute.value.path !== '/') {
-      router.push(path)
+// Hämtar användarinformation från backend baserat på token
+async function fetchMe() {
+    const token = localStorage.getItem('token')
+    if (!token) {
+        user.value = null
+        isAdmin.value = false
+        return
     }
-  } catch {
-    localStorage.removeItem('token')
-    localStorage.removeItem('isAdmin')
+
+    try {
+        const res = await api.get('/auth/me')
+        user.value = res.data
+        isAdmin.value = res.data.isAdmin
+        localStorage.setItem('isAdmin', res.data.isAdmin)
+    } catch {
+        user.value = null
+        isAdmin.value = false
+        localStorage.removeItem('token')
+        localStorage.removeItem('isAdmin')
+    }
+}
+
+// Logga ut-funktion
+function handleLogout() {
     user.value = null
     isAdmin.value = false
-    router.push('/login')
-  }
+    localStorage.removeItem('token')
+    localStorage.removeItem('isAdmin')
 }
 
-function handleLogout() {
-  user.value = null
-  isAdmin.value = false
-}
-
+// Kör fetchMe när appen startar och vid route-ändring
 onMounted(fetchMe)
-defineExpose({ fetchMe })
+watch(() => route.path, () => { fetchMe() })
 </script>
+
+<style>
+@import './assets/style.css';
+</style>
