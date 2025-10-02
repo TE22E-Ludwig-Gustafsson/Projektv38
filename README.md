@@ -42,8 +42,8 @@ Målet är att skapa en applikation där användare kan logga in, hantera data (
 ### Sprint 2 – Skapa och uppdatera objekt
 **Mål:** Möjliggöra att användaren kan lägga till och redigera objekt.  
 - **User Stories:**
-  1. Som användare vill jag kunna lägga till nya objekt så att jag kan uppdatera systemet.  
-  2. Som användare vill jag kunna ändra information om objekt.  
+  1. Som admin vill jag kunna lägga till nya objekt så att jag kan uppdatera systemet.  
+  2. Som admin vill jag kunna ändra information om objekt.  
 
 ---
 
@@ -59,7 +59,7 @@ Målet är att skapa en applikation där användare kan logga in, hantera data (
 
 ![Strukturdiagram](../Projektv38/diagram3.png)
 
-
+ 
 **Flöde:**
 Flöde: Användaren interagerar med frontend (Vue.js) → frontend skickar HTTP-förfrågningar till backend API (Express) → backend hanterar logik och kommunicerar med databasen (MongoDB Atlas) → data skickas tillbaka via backend till frontend för visning.
 
