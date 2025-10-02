@@ -37,6 +37,7 @@ const fetchKurser = async () => {
         const res = await api.get('/items')
         kurser.value = res.data.map(c => {
             const dateObj = new Date(c.date)
+            dateObj.setHours(dateObj.getHours() - 1)
             const date = dateObj.toLocaleDateString('sv-SE')
             const time = dateObj.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })
             return { ...c, date, time, teacher: c.teacher || '' }

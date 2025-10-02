@@ -49,10 +49,9 @@ Målet är att skapa en applikation där användare kan logga in, hantera data (
 
 ### Sprint 3 – Ta bort objekt och förbättringar
 **Mål:** Slutföra CRUD-funktionaliteten och förbättra användarupplevelsen.  
-- **User Stories:**
-  1. Som användare vill jag kunna ta bort objekt som inte längre behövs.  
-  2. Som användare vill jag ha bättre feedback och felmeddelanden vid interaktioner.  
-  3. Som användare vill jag ha grundläggande responsiv design på gränssnittet.
+- **User Stories:** 
+  1. Som användare vill jag ha bättre feedback och felmeddelanden vid interaktioner.  
+  2. Som användare vill jag ha grundläggande responsiv design på gränssnittet.
 
 ---
 

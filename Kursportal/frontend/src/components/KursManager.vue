@@ -60,7 +60,8 @@ async function addKurs() {
         addKursError.value = 'Alla fält måste fyllas i.'
         return
     }
-    const isoDate = `${newDate.value}T${newTime.value}:00.000Z`
+    const isoDate = new Date(`${newDate.value}T${newTime.value}`).toISOString()
+
 
     try {
         const res = await api.post('/items', { name: newName.value, date: isoDate, teacher: newTeacher.value, description: newDescription.value })
