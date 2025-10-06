@@ -10,7 +10,7 @@ async function createAdmin() {
 
   const email = "admin";
   const password = "apple";
-  const name = "Admin"; // Lägg till namn!
+  const name = "Admin"; 
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const adminUser = new User({

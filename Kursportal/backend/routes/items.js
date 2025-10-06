@@ -20,7 +20,7 @@ router.post("/", auth, async (req, res) => {
   try {
     const newItem = new Item({
       name: req.body.name,
-      date: req.body.date, // ISO-sträng från frontend
+      date: req.body.date, 
       teacher: req.body.teacher,
       description: req.body.description || '' 
     });

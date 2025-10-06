@@ -16,17 +16,15 @@
                 </div>
 
                 <!-- Admin Secret Field -->
-                <input v-if="role === 'admin'" v-model="jwtSecret" type="password" placeholder="JWT Secret"
+                <input v-if="role === 'admin'" v-model="jwtSecret" type="password" placeholder="Hemlig Nyckel"
                     class="input" required />
 
                 <button type="submit" class="btn w-full">Registrera</button>
 
-                <!-- Visa eventuellt felmeddelande här -->
                 <p v-if="errorMessage" class="error-message">
                     {{ errorMessage }}
                 </p>
 
-                <!-- Visa framgångsmeddelande -->
                 <p v-if="successMessage" class="success-message">
                     {{ successMessage }}
                 </p>

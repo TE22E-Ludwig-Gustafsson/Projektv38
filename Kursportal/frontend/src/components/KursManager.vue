@@ -1,7 +1,11 @@
 <template>
     <div class="page-container">
         <h2 class="title-lg">Kurs lista</h2>
+        <button @click="openAddModal" class="btn">+ Skapa ny kurs</button>
 
+    
+        <!-- Skapa modal för popup ruta till skapa kurs-->
+         
         <!-- Formulär för att lägga till kurs -->
         <form @submit.prevent="addKurs" class="form-add-kurs">
             <input v-model="newName" placeholder="Kurs namn" class="input" />
@@ -85,7 +89,6 @@ async function updateKurs(kurs) {
             description: kurs.description
         })
 
-        // Uppdatera global state direkt
         const index = kurser.value.findIndex(k => k._id === kurs._id)
         if (index !== -1) {
             const dateObj = new Date(res.data.date)

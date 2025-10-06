@@ -23,9 +23,9 @@ body {
   display: flex;
   justify-content: space-between; /* logga till vänster, knappar till höger */
   align-items: center;
-  background: linear-gradient(90deg, #4a90e2, #0077b6);
+  background: linear-gradient(45deg, #d44431, #0077b6, #800080);
   padding: 15px 30px;
-  color: white;
+  color: rgb(255, 255, 255);
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
@@ -44,8 +44,8 @@ body {
   padding: 8px 14px;
   border: none;
   border-radius: 6px;
-  background-color: #2196F3;
-  color: white;
+  background-color: #ec2d02;
+  color: rgb(255, 255, 255);
   cursor: pointer;
   transition: background 0.3s;
 }
@@ -107,20 +107,21 @@ body {
 /* =======================
    KURSER
 ======================= */
+
 .kurs-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr); /* 3 kolumner */
   gap: 20px; /* mellanrum mellan korten */
   padding: 20px;
-  justify-items: center; /* centrerar korten horisontellt i varje kolumn */
+  justify-items: center; 
 }
 
 .kurs-card {
   background-color: white;
   border-radius: 8px;
   padding: 20px;
-  width: 100%; /* fyller kolumnen */
-  max-width: 300px; /* maxbredd på kort */
+  width: 100%; 
+  max-width: 400px; 
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   text-align: center;
 }
@@ -174,8 +175,6 @@ body {
 /* =======================
    DASHBOARD och KURSMANAGER
 ======================= */
-
-
 
 .page-container {
   max-width: 1000px;

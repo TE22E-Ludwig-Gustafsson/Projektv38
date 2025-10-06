@@ -1,13 +1,13 @@
 # Kursportal
 
 En webbapplikation byggd med **Vue.js (frontend)**, **Node.js + Express (backend)** och **MongoDB Atlas (databas)**.  
-Projektet utvecklas enligt **Agile-metodik** med sprintar, backlog och versionshantering i **GitHub**.  
+Projektet utvecklas enligt **Agile-metodik** med sprintar, backlog..  
 
 ---
 
 ## Mål
 
-Målet är att skapa en applikation där användare kan logga in, hantera data (visa, lägga till, uppdatera och ta bort objekt) och lagra informationen säkert i molnet.
+Målet är att skapa en applikation där användare kan registrera, logga in och Se tillagda kurser. Admin roll ska finnas där admins kan lägga till, ändra och ta bort kurser från kurslistan.
 
 ---
 
@@ -15,7 +15,6 @@ Målet är att skapa en applikation där användare kan logga in, hantera data (
 - **Frontend:** Vue.js  
 - **Backend:** Node.js + Express  
 - **Databas:** MongoDB Atlas  
-- **Versionshantering:** Git + GitHub  
 - **Arbetsmetod:** Agile (sprintar, backlog, demo)  
 
 ---
@@ -24,8 +23,8 @@ Målet är att skapa en applikation där användare kan logga in, hantera data (
 - Registrering av nya användare  
 - Inloggning med JWT-autentisering  
 - Lista alla objekt  
-- Lägga till nya objekt  
-- Uppdatera och ta bort objekt  
+- (Admin) Lägga till nya objekt  
+- (Admin) Uppdatera och ta bort objekt  
 
 ---
 
@@ -40,7 +39,7 @@ Målet är att skapa en applikation där användare kan logga in, hantera data (
 ---
 
 ### Sprint 2 – Skapa och uppdatera objekt
-**Mål:** Möjliggöra att användaren kan lägga till och redigera objekt.  
+**Mål:** Möjliggöra att admin kan lägga till och redigera objekt.  
 - **User Stories:**
   1. Som admin vill jag kunna lägga till nya objekt så att jag kan uppdatera systemet.  
   2. Som admin vill jag kunna ändra information om objekt.  
