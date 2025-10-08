@@ -56,7 +56,7 @@ Målet är att skapa en applikation där användare kan registrera, logga in och
 
 ## Arkitektur
 
-![Strukturdiagram](../Projektv38/diagram3.png)
+![Strukturdiagram](../Projektv38/Backend%20(1).png)
 
  
 **Flöde:**
@@ -68,4 +68,4 @@ Flöde: Användaren interagerar med frontend (Vue.js) → frontend skickar HTTP-
 
 1. Klona repo:  
    ```bash
-   git clone https://github.com/Username/projectName
+   git clone https://github.com/TE22E-Ludwig-Gustafsson/Projektv38

@@ -1,4 +1,6 @@
 <template>
+    <div class="Kursbackground">
+        
     <div class="kurs-container">
         <!-- Kurskort -->
         <div v-for="kurs in kurserState" :key="kurs._id" class="kurs-card">
@@ -18,6 +20,7 @@
                 <p><strong>Beskrivning:</strong> {{ selectedKurs.description }}</p>
             </div>
         </div>
+    </div>
     </div>
 </template>
 

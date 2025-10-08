@@ -1,10 +1,8 @@
 <template>
     <div class="page-container">
         <h2 class="title-lg">Kurs lista</h2>
-        <button @click="openAddModal" class="btn">+ Skapa ny kurs</button>
 
     
-        <!-- Skapa modal för popup ruta till skapa kurs-->
          
         <!-- Formulär för att lägga till kurs -->
         <form @submit.prevent="addKurs" class="form-add-kurs">

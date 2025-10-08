@@ -11,7 +11,7 @@
                     <option value="admin">Admin</option>
                 </select>
 
-                <input v-if="role === 'admin'" v-model="jwtSecret" type="password" placeholder="Hemlig Nyckel" />
+                <input v-if="role === 'admin'" v-model="jwtSecret" type="password" placeholder="Hemlig nyckel" />
 
                 <button type="submit">Logga in</button>
 
