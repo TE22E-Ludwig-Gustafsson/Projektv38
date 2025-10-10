@@ -15,6 +15,16 @@
                     </select>
                 </div>
 
+                <div v-if="role === 'user'" class="select-wrapper">
+
+                    <select v-model="userClass" class="input select-styled" required>
+                        <option value="" disabled>Välj Klass</option>
+                        <option value="klass-a">Klass A</option>
+                        <option value="klass-b">Klass B</option>
+                        <option value="klass-c">Klass C</option>
+                    </select>
+
+                </div>
                 <!-- Admin Secret Field -->
                 <input v-if="role === 'admin'" v-model="jwtSecret" type="password" placeholder="Hemlig Nyckel"
                     class="input" required />
@@ -44,6 +54,7 @@ const email = ref('')
 const password = ref('')
 const role = ref('user')
 const jwtSecret = ref('')
+const userClass = ref('')
 const errorMessage = ref('')
 const successMessage = ref('')
 
@@ -58,7 +69,8 @@ const submit = async () => {
             email: email.value,
             password: password.value,
             role: role.value,
-            jwtSecret: jwtSecret.value
+            userClass: userClass.value,
+            jwtSecret: jwtSecret.value,
         })
 
         // Hantera framgång
@@ -70,7 +82,6 @@ const submit = async () => {
 
     } catch (err) {
         console.error('Registration error:', err)
-        // Visar felmeddelande på sidan istället för alert
         errorMessage.value = err.response?.data?.msg || 'Registreringen misslyckades. Kontrollera nätverket eller försök igen.'
     }
 }

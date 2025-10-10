@@ -32,9 +32,6 @@ import api from '../services/api'
 const kurser = kurserState
 const selectedKurs = ref(null)
 
-function showDesciption(kurs) {
-    selectedKurs.value = kurs
-}
 const fetchKurser = async () => {
     try {
         const res = await api.get('/items')

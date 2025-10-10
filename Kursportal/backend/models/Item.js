@@ -7,4 +7,4 @@ const ItemSchema = new mongoose.Schema({
   description: { type: String, default: '' }
 });
 
-module.exports = mongoose.model("Item", ItemSchema);
+module.exports = mongoose.model("item", ItemSchema);

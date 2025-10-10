@@ -18,7 +18,7 @@ const emit = defineEmits(['logout'])
 
 function handleLogout() {
     emit('logout')
-    router.push('/login')
+    router.push('/')
 }
 
 function goToLogin() { router.push('/login') }

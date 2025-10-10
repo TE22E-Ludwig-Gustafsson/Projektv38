@@ -1,12 +1,21 @@
 const express = require("express");
 const router = express.Router();
 const Item = require("../models/item");
-const auth = require("../middleware/auth");
+const auth = require("../middleware/authm");
 
 // GET alla objekt
-router.get("/", async (req, res) => {
+router.get("/", auth, async (req, res) => {
   try {
-    const items = await Item.find();
+    let filter = {};
+    
+    if (!req.user.isAdmin) {
+      filter.class = req.user.class;
+    } else {
+      // En inloggad användare UTAN klass i token är inte tillåten.
+      return res.status(403).json({ msg: "Klass information saknas i användartoken" });
+    }
+
+    const items = await Item.find(filter);
     res.json(items);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -20,9 +29,10 @@ router.post("/", auth, async (req, res) => {
   try {
     const newItem = new Item({
       name: req.body.name,
-      date: req.body.date, 
+      date: req.body.date,
       teacher: req.body.teacher,
-      description: req.body.description || '' 
+      description: req.body.description || "",
+      class: req.body.class,
     });
 
     await newItem.save();
@@ -43,7 +53,7 @@ router.put("/:id", auth, async (req, res) => {
         name: req.body.name,
         date: req.body.date, // ISO-sträng
         teacher: req.body.teacher,
-        description: req.body.description || ''
+        description: req.body.description || "",
       },
       { new: true }
     );

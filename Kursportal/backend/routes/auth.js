@@ -3,18 +3,23 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const auth = require("../middleware/auth");
+const auth = require("../middleware/authm");
 const dotenv = require("dotenv");
+const classMap = {
+  "klass-a": "1A",
+  "klass-b": "1B",
+  "klass-c": "1C",
+};
 dotenv.config();
 
 // REGISTER
 
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password, role, jwtSecret } = req.body;
+    const { name, email, password, role, jwtSecret, userClass } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ msg: "Fyll i alla fält" });
+    if (!name || !email || !password || (role === "user" && !userClass)) {
+      return res.status(400).json({ msg: "Fyll i alla fält inklusive klass." });
     }
 
     // Kontrollera om användaren redan finns
@@ -42,6 +47,7 @@ router.post("/register", async (req, res) => {
       email,
       password: hashedPassword,
       isAdmin,
+      class: userClass,
     });
     await newUser.save();
 
@@ -54,29 +60,48 @@ router.post("/register", async (req, res) => {
 
 // LOGIN
 router.post("/login", async (req, res) => {
-  const { email, password, role, jwtSecret } = req.body;
+  const { email, password, role, jwtSecret, userClass } = req.body;
 
   if (role === "admin") {
     if (!jwtSecret || jwtSecret !== process.env.JWT_SECRET)
       return res.status(401).json({ msg: "Fel JWT Secret!" });
 
-    return res.json({ msg: "Admin inloggad" });
+    const adminToken = jwt.sign(
+      { id: "admin-id", isAdmin: true, class: "admin" },
+      process.env.JWT_SECRET,
+      { expiresIn: "12h" }
+    );
+
+    
+    return res.json({
+      token: adminToken, // Skickar token
+      user: { isAdmin: true, class: "admin" },
+    });
   }
 
   // Vanlig användare
-  if (!email || !password)
-    return res.status(400).json({ msg: "Fyll i alla fält" });
+  if (!email || !password || !userClass)
+    return res.status(400).json({ msg: "Fyll i alla fält, inklusive klass" });
 
   const user = await User.findOne({ email });
   if (!user)
     return res.status(400).json({ msg: "Ogiltiga inloggningsuppgifter" });
 
   const isMatch = await bcrypt.compare(password, user.password);
+
   if (!isMatch)
     return res.status(400).json({ msg: "Ogiltiga inloggningsuppgifter" });
 
+  if (classMap[user.class] !== userClass) {
+    return res.status(403).json({
+      msg: `Du är registrerad i ${
+        classMap[user.class]
+      }. Du kan inte logga in i ${userClass}.`,
+    });
+  }
+
   const token = jwt.sign(
-    { id: user._id, isAdmin: user.isAdmin },
+    { id: user._id, isAdmin: user.isAdmin, class: user.class },
     process.env.JWT_SECRET,
     { expiresIn: "12h" }
   );
@@ -88,6 +113,7 @@ router.post("/login", async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      class: user.class,
     },
   });
 });
