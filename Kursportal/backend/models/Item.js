@@ -4,7 +4,8 @@ const ItemSchema = new mongoose.Schema({
   name: { type: String, required: true },
   date: { type: Date },         
   teacher: { type: String },
-  description: { type: String, default: '' }
+  description: { type: String, default: '' },
+  class: { type: String, required: true }
 });
 
 module.exports = mongoose.model("item", ItemSchema);

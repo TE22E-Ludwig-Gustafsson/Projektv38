@@ -56,34 +56,67 @@ const submit = async () => {
     }
 
     try {
-        // Skicka login-request
-        const res = await api.post("/auth/login", {
+        // Skicka login-request med olika data beroende på roll
+        const loginData = role.value === 'admin' ? {
             email: email.value,
             password: password.value,
             role: role.value,
-            jwtSecret: jwtSecret.value,
-            userClass: userClass.value,
-        })
+            jwtSecret: jwtSecret.value
+        } : {
+            email: email.value,
+            password: password.value,
+            role: role.value,
+            userClass: userClass.value
+        };
+        
+        console.log("Sending login data:", { ...loginData, password: '***' });
+        const res = await api.post("/auth/login", loginData)
 
         const user = res.data.user
-        console.log("token:" + res.data.token);
+        console.log("Backend response:", res.data);
+        console.log("Token to save:", res.data.token);
         // Spara token och user info
         localStorage.setItem("token", JSON.stringify(res.data.token))
 
+        // Add log to verify role before saving
+        console.log("Role during login:", role.value);
+
         localStorage.setItem("isAdmin", role.value === "admin" ? "true" : "false")
+        // Add log to verify isAdmin value
+        console.log("isAdmin saved in localStorage:", localStorage.getItem("isAdmin"));
 
-        localStorage.setItem("admin", JSON.stringify(user))
+        localStorage.setItem("adminUser", JSON.stringify(user))
 
-        // Navigera baserat på role
+        // Navigera baserat på role och klass
         if (role.value === "admin") {
-            // Spara token och user info
-            localStorage.setItem("token", res.data.token)
-            localStorage.setItem("admin", JSON.stringify({ isAdmin: true, class: "admin" }))
-            router.push("/dashboard")
+            console.log("Sparar admin info");
+            const adminData = { isAdmin: true, class: "admin" };
+            localStorage.setItem("adminUser", JSON.stringify(adminData));
+            console.log("Sparad admin data:", adminData);
+            router.push("/dashboard");
         } else {
-            localStorage.setItem("token", res.data.token)
-            localStorage.setItem("user", JSON.stringify({ isAdmin: false, class: userClass.value }))
-            router.push("/KursList")
+            console.log("Sparar användarinfo med klass:", userClass.value);
+            const userData = { 
+                isAdmin: false, 
+                class: userClass.value 
+            };
+            localStorage.setItem("regularUser", JSON.stringify(userData));
+            console.log("Sparad användardata:", userData);
+            
+            // Dirigera till rätt kurslista baserat på klass
+            switch(userClass.value) {
+                case "1A":
+                    router.push("/KursListA");
+                    break;
+                case "1B":
+                    router.push("/KursListB");
+                    break;
+                case "1C":
+                    router.push("/KursListC");
+                    break;
+                default:
+                    console.error("Ogiltig klass:", userClass.value);
+            }
         }
 
     } catch (err) {

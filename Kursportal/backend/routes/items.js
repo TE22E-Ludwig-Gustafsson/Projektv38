@@ -1,21 +1,42 @@
 const express = require("express");
 const router = express.Router();
 const Item = require("../models/item");
-const auth = require("../middleware/authm");
+
+// Debug logging middleware
+router.use((req, res, next) => {
+    console.log(`\n=== ${req.method} ${req.path} ===`);
+    console.log('Query:', req.query);
+    console.log('Body:', req.body);
+    next();
+});
 
 // GET alla objekt
-router.get("/", auth, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    let filter = {};
+    const userClass = req.query.class;
+    console.log("\n=== GET /items ===");
+    console.log("Request class parameter:", userClass);
     
-    if (!req.user.isAdmin) {
-      filter.class = req.user.class;
+    // Strikt filtrering på klass
+    const query = {};
+    if (userClass && userClass !== "undefined" && userClass !== "null" && userClass !== "") {
+      console.log("Applying class filter for:", userClass);
+      query.class = userClass;
     } else {
-      // En inloggad användare UTAN klass i token är inte tillåten.
-      return res.status(403).json({ msg: "Klass information saknas i användartoken" });
+      console.log("No class filter - admin view");
     }
-
-    const items = await Item.find(filter);
+    
+    console.log("MongoDB query:", query);
+    const items = await Item.find(query).sort({ date: 1 });
+    
+    console.log("\nFound courses:", items.length);
+    if (items.length > 0) {
+      console.log("Course details:");
+      items.forEach(item => {
+        console.log(`- ${item.name} (Class: ${item.class})`);
+      });
+    }
+    
     res.json(items);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -23,10 +44,9 @@ router.get("/", auth, async (req, res) => {
 });
 
 // POST nytt objekt (admin only)
-router.post("/", auth, async (req, res) => {
-  if (!req.user.isAdmin) return res.status(403).json({ msg: "Ej behörighet" });
-
+router.post("/", async (req, res) => {
   try {
+    console.log("Creating new course with data:", req.body);
     const newItem = new Item({
       name: req.body.name,
       date: req.body.date,
@@ -35,7 +55,9 @@ router.post("/", auth, async (req, res) => {
       class: req.body.class,
     });
 
+    console.log("Saving new course:", newItem);
     await newItem.save();
+    console.log("Course saved successfully:", newItem);
     res.json(newItem);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -43,17 +65,17 @@ router.post("/", auth, async (req, res) => {
 });
 
 // PUT uppdatera objekt (admin only)
-router.put("/:id", auth, async (req, res) => {
-  if (!req.user.isAdmin) return res.status(403).json({ msg: "Ej behörighet" });
-
+router.put("/:id", async (req, res) => {
   try {
+    console.log("Updating course with data:", req.body);
     const item = await Item.findByIdAndUpdate(
       req.params.id,
       {
         name: req.body.name,
-        date: req.body.date, // ISO-sträng
+        date: req.body.date,
         teacher: req.body.teacher,
         description: req.body.description || "",
+        class: req.body.class, // Lägg till class i uppdateringen
       },
       { new: true }
     );
@@ -64,8 +86,7 @@ router.put("/:id", auth, async (req, res) => {
 });
 
 // DELETE objekt (admin only)
-router.delete("/:id", auth, async (req, res) => {
-  if (!req.user.isAdmin) return res.status(403).json({ msg: "Ej behörighet" });
+router.delete("/:id", async (req, res) => {
   try {
     await Item.findByIdAndDelete(req.params.id);
     res.json({ success: true });

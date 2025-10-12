@@ -62,7 +62,11 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   const { email, password, role, jwtSecret, userClass } = req.body;
 
+  // Add log to verify role and isAdmin during login
+  console.log("Role during login:", role);
+
   if (role === "admin") {
+    console.log("Admin login detected");
     if (!jwtSecret || jwtSecret !== process.env.JWT_SECRET)
       return res.status(401).json({ msg: "Fel JWT Secret!" });
 
@@ -72,7 +76,6 @@ router.post("/login", async (req, res) => {
       { expiresIn: "12h" }
     );
 
-    
     return res.json({
       token: adminToken, // Skickar token
       user: { isAdmin: true, class: "admin" },

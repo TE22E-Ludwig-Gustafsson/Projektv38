@@ -2,7 +2,7 @@
     <div class="page-container">
         <h2 class="title-lg">Kurs lista</h2>
 
-        <!-- Formulär för att lägga till kurs (endast admin) -->
+        <!-- Administrera kurser formulär (endast för admin) -->
         <form v-if="isAdmin" @submit.prevent="addKurs" class="form-add-kurs">
             <input v-model="newName" placeholder="Kurs namn" class="input" />
             <input type="date" v-model="newDate" class="input" />
@@ -22,13 +22,18 @@
 
         <p v-if="addKursError" class="error-message">{{ addKursError }}</p>
 
-        <!-- Lista över kurser -->
+        <!-- Visa alla kurser i rutnät -->
         <div class="kurs-grid">
             <div v-for="kurs in kurserState" :key="kurs._id" class="kurs-card">
                 <input v-model="kurs.name" @change="updateKurs(kurs)" class="input" :readonly="!isAdmin" />
                 <input type="date" v-model="kurs.date" @change="updateKurs(kurs)" class="input" :readonly="!isAdmin" />
                 <input type="time" v-model="kurs.time" @change="updateKurs(kurs)" class="input" :readonly="!isAdmin" />
                 <input v-model="kurs.teacher" @change="updateKurs(kurs)" class="input" :readonly="!isAdmin" />
+                <select v-model="kurs.class" @change="updateKurs(kurs)" class="input" :disabled="!isAdmin">
+                    <option value="1A">Klass A</option>
+                    <option value="1B">Klass B</option>
+                    <option value="1C">Klass C</option>
+                </select>
                 <input v-model="kurs.description" @change="updateKurs(kurs)" class="input" placeholder="Beskrivning"
                     :readonly="!isAdmin" />
                 <button v-if="isAdmin" @click="deleteKurs(kurs._id)" class="btn btn-danger">Radera</button>
@@ -51,27 +56,80 @@ const newClass = ref('')
 const addKursError = ref('')
 const isAdmin = ref(false)
 
-// Kolla om användaren är admin
+// Kontrollera användarens behörighet och hämta relevanta kurser
 onMounted(() => {
-    const user = JSON.parse(localStorage.getItem("user") || "{}")
-    isAdmin.value = !!user.isAdmin
-    fetchKurser()
+    const adminUser = JSON.parse(localStorage.getItem("adminUser") || "{}");
+    const regularUser = JSON.parse(localStorage.getItem("regularUser") || "{}");
+    
+    console.log("AdminUser från localStorage:", adminUser);
+    console.log("RegularUser från localStorage:", regularUser);
+    
+    // Bestäm användartyp och behörighet
+    const user = adminUser.isAdmin ? adminUser : regularUser;
+    console.log("Vald användare:", user);
+    
+    // Aktivera admin-läge om behörig
+    isAdmin.value = !!user.isAdmin;
+    console.log("Admin-behörighet:", isAdmin.value);
+    
+    // Hantera klasstillhörighet för kurshämtning
+    let userClass = null;
+    if (!isAdmin.value && user.class) {
+        userClass = user.class;
+        console.log("Vanlig användare, hämtar kurser för klass:", userClass);
+    } else if (isAdmin.value) {
+        console.log("Administratör, hämtar alla kurser");
+    } else {
+        console.log("Varning: Användaren saknar klasstillhörighet");
+    }
+    
+    // Loggning av användarkontext
+    console.log("Användarinformation:", {
+        isAdmin: isAdmin.value,
+        userClass: userClass,
+        userObject: user
+    });
+    
+    fetchKurser(userClass);
 })
 
-// Hämta kurser
-async function fetchKurser() {
+// Hämta kurser från servern
+async function fetchKurser(userClass) {
     try {
-        const res = await api.get('/items')
-        kurserState.value = res.data.map(c => {
-            const [date, time] = (c.date || '').split('T')
-            return { ...c, date, time: time?.slice(0, 5) || '', teacher: c.teacher || '', description: c.description || '' }
-        })
+        console.log("\n=== Hämtar Kurser ===");
+        console.log("Nuvarande tillstånd:", {
+            isAdmin: isAdmin.value,
+            userClass: userClass,
+            userFromStorage: JSON.parse(localStorage.getItem("regularUser") || "{}")
+        });
+        
+        let url;
+        if (isAdmin.value) {
+            url = '/items';
+            console.log("Admin-vy - hämtar alla kurser");
+        } else if (userClass) {
+            url = `/items?class=${userClass}`;
+            console.log("Användar-vy - hämtar kurser för klass:", userClass);
+        } else {
+            console.error("Ingen klass angiven för vanlig användare");
+            return;
+        }
+        
+        console.log("Skickar förfrågan till:", url);
+        const res = await api.get(url);
+        
+        console.log("Mottagna kurser:", res.data.length);
+        res.data.forEach(course => {
+            console.log(`- ${course.name} (Klass: ${course.class})`);
+        });
+        
+        kurserState.value = res.data;
     } catch (err) {
-        console.error('Kunde inte hämta kurser:', err)
+        console.error('Kunde inte hämta kurser:', err);
     }
 }
 
-// Lägg till kurs (admin)
+// Skapa ny kurs (endast för admin)
 async function addKurs() {
     addKursError.value = ''
     if (!newName.value || !newDate.value || !newTime.value || !newTeacher.value || !newClass.value) {
@@ -80,12 +138,10 @@ async function addKurs() {
     }
 
     const isoDate = new Date(`${newDate.value}T${newTime.value}`).toISOString()
-    const token = localStorage.getItem("token") || ''
 
     try {
         const res = await api.post('/items',
-            { name: newName.value, date: isoDate, teacher: newTeacher.value, description: newDescription.value, class: newClass.value },
-            { headers: { Authorization: `Bearer ${token}` } } 
+            { name: newName.value, date: isoDate, teacher: newTeacher.value, description: newDescription.value, class: newClass.value }
         )
         const [date, time] = res.data.date.split('T')
         kurserState.value.push({ ...res.data, date, time: time?.slice(0, 5) || '', teacher: res.data.teacher, description: res.data.description || '' })
@@ -96,14 +152,12 @@ async function addKurs() {
     }
 }
 
-// Uppdatera kurs (admin)
+// Uppdatera befintlig kurs (endast för admin)
 async function updateKurs(kurs) {
-    const token = localStorage.getItem("token") || ''
     try {
         const isoDate = new Date(`${kurs.date}T${kurs.time}`).toISOString()
         const res = await api.put(`/items/${kurs._id}`,
-            { name: kurs.name, date: isoDate, teacher: kurs.teacher, description: kurs.description },
-            { headers: { Authorization: `Bearer ${token}` } } // ✅ Token
+            { name: kurs.name, date: isoDate, teacher: kurs.teacher, description: kurs.description, class: kurs.class }
         )
 
         const index = kurserState.value.findIndex(k => k._id === kurs._id)
@@ -118,11 +172,10 @@ async function updateKurs(kurs) {
     }
 }
 
-// Radera kurs (admin)
+// Ta bort kurs (endast för admin)
 async function deleteKurs(id) {
-    const token = localStorage.getItem("token") || ''
     try {
-        await api.delete(`/items/${id}`, { headers: { Authorization: `Bearer ${token}` } }) // ✅ Token
+        await api.delete(`/items/${id}`)
         kurserState.value = kurserState.value.filter(c => c._id !== id)
     } catch (err) {
         console.error('Kunde inte radera kurs:', err)
