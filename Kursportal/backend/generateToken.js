@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = "abc";
+const JWT_SECRET = "JWT_SECRET";
 
 // Generera en giltig token
 const token = jwt.sign(

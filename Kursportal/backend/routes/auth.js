@@ -47,8 +47,10 @@ router.post("/register", async (req, res) => {
       email,
       password: hashedPassword,
       isAdmin,
-      class: userClass,
+      class: role === 'admin' ? 'admin' : userClass,
     });
+    console.log({ name, email, role, userClass, jwtSecret });
+
     await newUser.save();
 
     res.json({ msg: "Registrering lyckades!" });
@@ -70,6 +72,13 @@ router.post("/login", async (req, res) => {
     if (!jwtSecret || jwtSecret !== process.env.JWT_SECRET)
       return res.status(401).json({ msg: "Fel JWT Secret!" });
 
+    const adminUser = await User.findOne({ email, isAdmin: true });
+    if (!adminUser)
+      return res.status(401).json({ msg: "Admin-kontot finns inte" });
+
+    const isMatch = await bcrypt.compare(password, adminUser.password);
+    if (!isMatch) return res.status(401).json({ msg: "Fel lösenord" });
+
     const adminToken = jwt.sign(
       { id: "admin-id", isAdmin: true, class: "admin" },
       process.env.JWT_SECRET,
@@ -77,8 +86,14 @@ router.post("/login", async (req, res) => {
     );
 
     return res.json({
-      token: adminToken, // Skickar token
-      user: { isAdmin: true, class: "admin" },
+      token: adminToken,
+      user: {
+        id: adminUser._id,
+        name: adminUser.name,
+        email: adminUser.email,
+        isAdmin: true,
+        class: "admin",
+      },
     });
   }
 

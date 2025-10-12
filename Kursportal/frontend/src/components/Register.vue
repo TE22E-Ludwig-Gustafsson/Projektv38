@@ -4,8 +4,12 @@
             <h2 class="title">Registrera</h2>
             <form @submit.prevent="submit" class="form-spacing">
                 <input v-model="name" placeholder="Namn" class="input" required />
-                <input v-model="email" type="text" placeholder="E-post" class="input" required />
+
+                <input v-model="email" type="email" placeholder="E-post" class="input" required />
+                <p v-if="emailError" class="error-message">{{ emailError }}</p>
+
                 <input v-model="password" type="password" placeholder="Lösenord" class="input" required />
+                <p v-if="passwordError" class="error-message">{{ passwordError }}</p>
 
                 <!-- Role Selection -->
                 <div class="select-wrapper">
@@ -26,8 +30,7 @@
 
                 </div>
                 <!-- Admin Secret Field -->
-                <input v-if="role === 'admin'" v-model="jwtSecret" type="password" placeholder="Hemlig Nyckel"
-                    class="input" required />
+                <input v-if="role === 'admin'" v-model="jwtSecret" type="password" placeholder="Hemlig Nyckel"class="input" required />
 
                 <button type="submit" class="btn w-full">Registrera</button>
 
@@ -57,20 +60,40 @@ const jwtSecret = ref('')
 const userClass = ref('')
 const errorMessage = ref('')
 const successMessage = ref('')
+const emailError = ref('')
+const passwordError = ref('')
+
 
 const submit = async () => {
     // Rensa meddelanden vid nytt försök
     errorMessage.value = ''
     successMessage.value = ''
+    emailError.value = ''
+    passwordError.value = ''
+
+    // E-postvalidering
+    if (!email.value.includes('@')) {
+        emailError.value = "E-post måste innehålla '@'."
+    }
+
+    // Lösenordsvalidering
+    if (password.value.length < 6) {
+        passwordError.value = "Lösenord måste vara minst 6 tecken."
+    }
+
+    // Avbryt om något fel finns
+    if (emailError.value || passwordError.value) {
+        return
+    }
 
     try {
         const res = await api.post('/auth/register', {
-            name: name.value,
-            email: email.value,
+            name: name.value.trim(),
+            email: email.value.trim(),
             password: password.value,
             role: role.value,
-            userClass: userClass.value,
-            jwtSecret: jwtSecret.value,
+            userClass: role.value === 'admin' ? 'admin' : userClass.value, 
+            jwtSecret: jwtSecret.value.trim(),
         })
 
         // Hantera framgång
