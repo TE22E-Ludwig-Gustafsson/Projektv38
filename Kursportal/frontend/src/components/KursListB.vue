@@ -35,7 +35,6 @@ const selectedKurs = ref(null)
 const filteredKurser = computed(() => {
     return kurserState.value.filter(kurs => kurs.class === "1B").map(kurs => {
         const dateObj = new Date(kurs.date)
-        dateObj.setHours(dateObj.getHours() - 1)
         const date = dateObj.toLocaleDateString('sv-SE')
         const time = dateObj.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })
         return { ...kurs, date, time, teacher: kurs.teacher || '' }

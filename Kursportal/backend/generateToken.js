@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-// Ersätt med ditt riktiga JWT_SECRET från .env-filen
-const JWT_SECRET = "DIN_JWT_SECRET";
+const JWT_SECRET = "abc";
 
 // Generera en giltig token
 const token = jwt.sign(
