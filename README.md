@@ -33,15 +33,15 @@ Målet är att skapa en applikation där användare kan registrera, logga in och
 ### Sprint 1 – Grundläggande funktioner
 **Mål:** Få igång användarhantering och grundläggande visning av objekt.  
 - **User Stories:**
-  1. Som användare vill jag kunna logga in för att komma åt systemet.  
-  2. Som användare vill jag kunna se en lista med objekt så att jag får en översikt.  
+  1. Som användare och admin vill jag kunna registrera konto och logga in för att komma åt sidan.  
+  2. Som användare och admin vill jag kunna se en lista med objekt så att jag får en översikt.  
 
 ---
 
 ### Sprint 2 – Skapa och uppdatera objekt
 **Mål:** Möjliggöra att admin kan lägga till och redigera objekt.  
 - **User Stories:**
-  1. Som admin vill jag kunna lägga till nya objekt så att jag kan uppdatera systemet.  
+  1. Som admin vill jag kunna lägga till nya objekt så att jag kan uppdatera sidan.  
   2. Som admin vill jag kunna ändra information om objekt.  
 
 ---
