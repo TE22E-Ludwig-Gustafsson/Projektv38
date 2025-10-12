@@ -56,7 +56,7 @@ Målet är att skapa en applikation där användare kan registrera, logga in och
 
 ## Arkitektur
 
-![Strukturdiagram](../Projektv38/Backend%20(1).png)
+![Strukturdiagram](struktur.png)
 
  
 **Flöde:**
